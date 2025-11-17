@@ -1,4 +1,12 @@
 <script lang="ts">
+  //load data on mount
+  $effect(() => {
+    const saved = localStorage.getItem("cleaningData");
+    if (saved) {
+      cleaningData = JSON.parse(saved);
+    }
+  });
+
   // Data Structures
   interface CleaningEntry {
     id: number;
@@ -8,79 +16,36 @@
     completionDate: string | null;
   }
 
-  // Initial Data
-  let cleaningData: CleaningEntry[] = [
-    {
-      id: 1,
-      roommate: "Ahmed",
-      month: "November 2025",
-      isComplete: false,
-      completionDate: null,
-    },
-    {
-      id: 2,
-      roommate: "Ankit",
-      month: "December 2025",
-      isComplete: false,
-      completionDate: null,
-    },
-    {
-      id: 3,
-      roommate: "Mohammed",
-      month: "January 2026",
-      isComplete: false,
-      completionDate: null,
-    },
-    {
-      id: 4,
-      roommate: "AbdulAziz",
-      month: "February 2026",
-      isComplete: false,
-      completionDate: null,
-    },
-    {
-      id: 5,
-      roommate: "Ahmed",
-      month: "March 2026",
-      isComplete: false,
-      completionDate: null,
-    },
-    {
-      id: 6,
-      roommate: "Ankit",
-      month: "April 2026",
-      isComplete: false,
-      completionDate: null,
-    },
-    {
-      id: 7,
-      roommate: "Mohammed",
-      month: "May 2026",
-      isComplete: false,
-      completionDate: null,
-    },
-    {
-      id: 8,
-      roommate: "AbdulAziz",
-      month: "June 2026",
-      isComplete: false,
-      completionDate: null,
-    },
-    {
-      id: 9,
-      roommate: "Ahmed",
-      month: "July 2026",
-      isComplete: false,
-      completionDate: null,
-    },
-    {
-      id: 10,
-      roommate: "Ankit",
-      month: "August 2026",
-      isComplete: false,
-      completionDate: null,
-    },
-  ];
+  //save whenever data changes
+  $effect(() => {
+    localStorage.setItem("cleaningData", JSON.stringify(cleaningData));
+  });
+
+  function generateSchedule(
+    startMonth: Date,
+    roommates: string[],
+    months: number = 12
+  ) {
+    const schedule: CleaningEntry[] = [];
+
+    for (let i = 0; i < months; i++) {
+      const date = new Date(startMonth);
+      date.setMonth(date.getMonth() + i);
+
+      schedule.push({
+        id: i + 1,
+        roommate: roommates[i % roommates.length],
+        month: date.toLocaleString("en-US", { month: "long", year: "numeric" }),
+        isComplete: false,
+        completionDate: null,
+      });
+    }
+    return schedule;
+  }
+
+  //usage
+  const roommates = ["Ankit", "Abdulaziz", "Ahmed", "Mohammed"];
+  let cleaningData = generateSchedule(new Date(2025, 10), roommates);
 
   // Logic Function
   function handleToggle(entry: CleaningEntry) {
@@ -156,7 +121,7 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
 
-  .cleaning table th,
+  .cleaning-table th,
   .cleaning-table td {
     padding: 12px 15px;
     border: 1px solid #ddd;
